@@ -1,0 +1,25 @@
+services:
+  whatsapp-bot:
+    container_name: whatsapp-bot
+    hostname: whatsapp-bot
+    build: .
+    restart: unless-stopped
+    env_file:
+      - .env
+    networks:
+      - whatsapp_network
+    volumes:
+      - whatsapp_auth:/app/.wwebjs_auth
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  whatsapp_network:
+    external: true
+
+volumes:
+  whatsapp_auth:
+    name: whatsapp_auth
