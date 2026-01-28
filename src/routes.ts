@@ -65,7 +65,6 @@ botZapRoutes.get("/status", async (c) => {
 });
 
 
-// Send - envia código de barras e PDF
 botZapRoutes.post("/send", zValidator("json", sendMessageSchema), async (c) => {
   try {
     const status = whatsappClient.getStatus();
