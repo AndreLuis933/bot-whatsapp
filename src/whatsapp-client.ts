@@ -1,4 +1,5 @@
 import { Client, LocalAuth, MessageMedia } from "whatsapp-web.js";
+import qrcode from "qrcode-terminal";
 
 class WhatsAppClient {
   private client: Client | null = null;
@@ -70,7 +71,7 @@ class WhatsAppClient {
 
     this.client.on("qr", (qr) => {
       this.qrCodeData = qr;
-      console.log("QR Code gerado. Acesse /qr para visualizar no navegador");
+      qrcode.generate(qr, { small: true });
     });
 
     this.client.on("ready", () => {
@@ -81,6 +82,7 @@ class WhatsAppClient {
 
     this.client.on("authenticated", () => {
       console.log("WhatsApp Client authenticated!");
+      this.isReady = true;
     });
 
     this.client.on("auth_failure", (msg) => {

@@ -7,7 +7,7 @@ RUN bun install --frozen-lockfile
 COPY src ./src
 RUN bun build src/index.ts --outdir=dist --target=bun
 
-FROM oven/bun:1-slim
+FROM oven/bun:1-slim AS production
 WORKDIR /app
 
 RUN apt-get update && apt-get install -y \

@@ -2,7 +2,7 @@ services:
   whatsapp-bot:
     container_name: whatsapp-bot
     hostname: whatsapp-bot
-    build: .
+    image: ghcr.io/andreluis933/bot-whatsapp:latest
     restart: unless-stopped
     env_file:
       - .env

@@ -3,12 +3,6 @@ import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
 
 import { getWhatsAppClient } from "./whatsapp-client";
-import {
-  getQrAuthenticatedPage,
-  getQrLoadingPage,
-  getQrScanPage,
-} from "./views/qr-page";
-import { generateQrCodeDataUrl } from "./utils/qr-generator";
 
 export const botZapRoutes = new Hono();
 
@@ -20,18 +14,6 @@ const sendMessageSchema = z.object({
   pdfFilename: z.string().default("documento.pdf"),
 });
 
-// Rota principal
-botZapRoutes.get("/", (c) => {
-  return c.json({
-    service: "WhatsApp Bot API",
-    version: "1.0.0",
-    endpoints: {
-      status: "GET /status - Verifica status e envia mensagem de teste",
-      qr: "GET /qr - Obtém QR Code para autenticação (HTML)",
-      send: "POST /send - Envia código de barras e PDF",
-    },
-  });
-});
 
 botZapRoutes.get("/health", (c) => {
   return c.json({
@@ -82,33 +64,6 @@ botZapRoutes.get("/status", async (c) => {
   }
 });
 
-// QR Code - retorna HTML para visualização no navegador
-botZapRoutes.get("/qr", async (c) => {
-  const qrCode = whatsappClient.getQrCode();
-  const status = whatsappClient.getStatus();
-
-  if (!qrCode) {
-    if (status.ready) {
-      return c.html(getQrAuthenticatedPage());
-    }
-    return c.html(getQrLoadingPage());
-  }
-
-  try {
-    // Gera QR Code localmente como Data URL
-    const qrCodeDataUrl = await generateQrCodeDataUrl(qrCode);
-    return c.html(getQrScanPage(qrCodeDataUrl));
-  } catch (error) {
-    console.error("Erro ao gerar QR Code:", error);
-    return c.json(
-      {
-        error: "Falha ao gerar QR Code",
-        details: error instanceof Error ? error.message : "Erro desconhecido",
-      },
-      500,
-    );
-  }
-});
 
 // Send - envia código de barras e PDF
 botZapRoutes.post("/send", zValidator("json", sendMessageSchema), async (c) => {
