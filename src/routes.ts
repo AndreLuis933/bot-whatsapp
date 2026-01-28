@@ -27,7 +27,6 @@ botZapRoutes.get("/health", (c) => {
   });
 });
 
-// Status - envia mensagem de teste
 botZapRoutes.get("/status", async (c) => {
   try {
     const status = whatsappClient.getStatus();
