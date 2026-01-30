@@ -11,29 +11,6 @@ catch_errors() {
 
 trap catch_errors ERR
 
-SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}" || exit)" && pwd)"
-ROOT_DIR=$(dirname "${SCRIPTS_DIR}")
-ENV_FILE="${ROOT_DIR}/.env"
-
-# shellcheck source=../../.env
-[[ -f "${ENV_FILE}" ]] && source "${ENV_FILE}"
-
-cd "$ROOT_DIR"
-
-test -d .git
-
-if [[ "$CURRENT_ENV" == "production" ]]; then
-  git fetch origin "$DEPLOY_BRANCH"
-  git reset --hard "origin/$DEPLOY_BRANCH"
-fi
-
-
 docker compose pull --policy always
 docker compose up -d --remove-orphans
 docker image prune -f
-
-
-
-echo "OK: deployed $(git rev-parse --short HEAD)"
-
-
