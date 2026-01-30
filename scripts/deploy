@@ -36,4 +36,3 @@ docker image prune -f
 
 echo "OK: deployed $(git rev-parse --short HEAD)"
 
-
