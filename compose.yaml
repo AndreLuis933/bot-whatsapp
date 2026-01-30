@@ -1,3 +1,6 @@
+
+name: bot-zap
+
 services:
   whatsapp-bot:
     container_name: whatsapp-bot
