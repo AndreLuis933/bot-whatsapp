@@ -32,4 +32,6 @@ ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
 RUN mkdir -p /app/.wwebjs_auth
 
+EXPOSE 3000
+
 CMD ["bun", "run", "dist/index.js"]

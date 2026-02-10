@@ -5,7 +5,7 @@ class WhatsAppClient {
   private client: Client | null = null;
   private isReady = false;
   private qrCodeData: string | null = null;
-  private phoneNumber: string;
+  private phoneNumbers: string[];
 
   constructor() {
     const phoneNumbers =
@@ -13,11 +13,11 @@ class WhatsAppClient {
         .map((num) => num.trim())
         .filter((num) => num.length > 0) || [];
 
-    if (!phoneNumbers[0]) {
+    if (phoneNumbers.length === 0) {
       throw new Error("PHONE_NUMBERS não configurado no .env");
     }
 
-    this.phoneNumber = phoneNumbers[0];
+    this.phoneNumbers = phoneNumbers;
     this.initialize();
   }
 
@@ -56,15 +56,6 @@ class WhatsAppClient {
           // Limitar uso de recursos
           "--no-first-run",
           "--no-default-browser-check",
-
-          // ❌ REMOVER ESTAS:
-          // "--no-zygote",
-          // "--single-process",
-          // "--disable-accelerated-2d-canvas",
-          // "--disable-accelerated-jpeg-decoding",
-          // "--disable-accelerated-mjpeg-decode",
-          // "--disable-accelerated-video-decode",
-          // "--blink-settings=imagesEnabled=false",
         ],
       },
     });
@@ -105,23 +96,19 @@ class WhatsAppClient {
     };
   }
 
-  public getQrCode(): string | null {
-    return this.qrCodeData;
-  }
-
   public async sendTestMessage(): Promise<void> {
     if (!this.isReady || !this.client) {
       throw new Error("Cliente WhatsApp não está pronto");
     }
 
-    const formattedNumber = this.formatPhoneNumber(this.phoneNumber);
     const testMessage = "✅ Teste de conexão - WhatsApp API funcionando!";
+    const formatted = this.formatPhoneNumber(this.phoneNumbers[0]!);
 
-    await this.client.sendMessage(formattedNumber, testMessage);
-    console.log(`Mensagem de teste enviada para ${formattedNumber}`);
+    await this.client.sendMessage(formatted, testMessage);
+    console.log(`Mensagem de teste enviada para ${formatted}`);
   }
 
-  public async sendBarcodeAndPdf(
+  public async sendDasNotification(
     barcode: string,
     pdfBase64: string,
     pdfFilename: string = "documento.pdf",
@@ -130,14 +117,17 @@ class WhatsAppClient {
       throw new Error("Cliente WhatsApp não está pronto");
     }
 
-    const formattedNumber = this.formatPhoneNumber(this.phoneNumber);
-
-    await this.client.sendMessage(formattedNumber, barcode);
-    console.log(`Código de barras enviado para ${formattedNumber}`);
-
     const media = new MessageMedia("application/pdf", pdfBase64, pdfFilename);
-    await this.client.sendMessage(formattedNumber, media);
-    console.log(`PDF enviado para ${formattedNumber}`);
+
+    for (const number of this.phoneNumbers) {
+      const formatted = this.formatPhoneNumber(number);
+
+      await this.client.sendMessage(formatted, barcode);
+      console.log(`Código de barras enviado para ${formatted}`);
+
+      await this.client.sendMessage(formatted, media);
+      console.log(`PDF enviado para ${formatted}`);
+    }
   }
 
   private formatPhoneNumber(number: string): string {
