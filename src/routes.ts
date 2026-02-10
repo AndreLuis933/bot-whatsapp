@@ -26,6 +26,7 @@ botZapRoutes.get("/health", (c) => {
   });
 });
 
+
 botZapRoutes.get("/status", async (c) => {
   try {
     const status = whatsappClient.getStatus();
